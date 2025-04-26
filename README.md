@@ -27,7 +27,7 @@ graph LR
     C -- Run Agent --> D(Smol Code Agent);
     D -- Uses --> E[read_pdf Tool];
     E -- Reads --> F(Financial PDF);
-    D -- Executes --> G[Python Code (pandas, matplotlib, etc.)];
+    D -- Executes --> G["Python Code (pandas, matplotlib, etc.)"];
     G -- Generates --> H{Analysis Text & Plot Image File};
     D -- Returns --> C;
     C -- Displays --> B;
