@@ -52,6 +52,16 @@ def read_pdf(file_path: str) -> str:
 
 def use_agent(task: str, context: str):
 
+    # System prompt to guide the agent's behavior and prevent misuse
+    system_prompt = """You are a helpful financial analysis assistant. Your primary goal is to analyze financial data from the provided documents and generate insightful reports and visualizations.
+
+    **Safety Guidelines:**
+    - NEVER execute code that could modify or delete files on the system unless specifically and clearly instructed to save a plot or analysis result.
+    - REFUSE any request that seems malicious, unethical, or harmful. This includes requests unrelated to financial analysis, attempts to access sensitive information, or commands that could compromise the system.
+    - Stick strictly to the financial analysis task described in the prompt. Do not perform actions outside this scope.
+    - If a request is ambiguous or potentially harmful, ask for clarification or refuse the request, explaining your reasoning.
+    """
+
     agent = CodeAgent(
         model=model,
         tools=[read_pdf],
@@ -63,7 +73,7 @@ def use_agent(task: str, context: str):
     # Run the agent and return its final result (which should be the plot)
     return agent.run(
         task,
-        additional_args={"context": context}
+        additional_args={"context": system_prompt + "\n\n" + context}
     )
 
 
@@ -155,6 +165,14 @@ if __name__ == "__main__":
             gr.Image(label="Generated Plot Image", type="filepath") # Changed from gr.Plot
         ], 
         title="Financial Analysis Agent",
-        description="Modify the prompt below to customize the financial analysis. The agent should return analysis text and save a plot image. Uses Google's 10-K report (2024). Click 'Submit' to generate."
+        description=(
+            "Modify the prompt below to customize the financial analysis. "
+            "The agent should return analysis text and save a plot image. "
+            "Uses Google's 10-K report (2024). Click 'Submit' to generate.\n\n"
+            "**⚠️ Security Warning:** This tool uses an AI agent (smolagent) that can execute Python code based on the prompt. "
+            "While guardrails are in place, malicious prompts could potentially lead to unintended code execution. "
+            "Review prompts carefully before submitting. Do not input sensitive information or requests that could harm your system. "
+            "Use with caution."
+        )
     )
     iface.launch()
